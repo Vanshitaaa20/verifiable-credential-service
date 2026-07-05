@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: verifiable-credential-service
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    # `prisma db push` instead of `migrate deploy`: this project has never
+    # had a live Postgres to generate versioned migration files against
+    # (Phases 1-4 were all built and tested against pure/in-memory logic —
+    # see README). `db push` syncs the schema directly at deploy time,
+    # which is the pragmatic choice for a demo service with no migration
+    # history yet, rather than fabricating migration files that were never
+    # actually run. A long-lived production service would switch to
+    # `prisma migrate deploy` with checked-in migrations once schema changes
+    # need to be reviewed/rolled back individually.
+    startCommand: npx prisma db push --skip-generate --accept-data-loss && npm start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vc-service-db
+          property: connectionString
+      - key: BASE_URL
+        value: https://verifiable-credential-service.onrender.com
+
+databases:
+  - name: vc-service-db
+    plan: free
+    databaseName: vc_service
+    user: vc_service
