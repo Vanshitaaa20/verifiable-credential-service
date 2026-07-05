@@ -5,6 +5,7 @@ import { prismaStatusListRepo } from '../revocation/prismaStatusListRepo.js';
 import { buildSignedStatusListCredential } from '../revocation/statusListService.js';
 import { getDidKeyByDid } from '../did/didService.js';
 import { BASE_URL } from '../config/baseUrl.js';
+import { recordVerificationRequest } from '../metrics.js';
 
 export const verifierRouter = Router();
 
@@ -32,6 +33,7 @@ const resolveStatusListCredential: StatusListResolver = async (url) => {
 // not a 400. checkCredentialSchema (called internally) already handles
 // non-object/garbage input safely.
 verifierRouter.post('/credentials/verify', async (req, res) => {
+  recordVerificationRequest();
   const result = await verifyCredential(req.body, resolveStatusListCredential);
   res.status(200).json(result);
 });
