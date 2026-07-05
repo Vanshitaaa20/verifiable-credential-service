@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// An identity that can issue and/or hold credentials.
+// Both issuer and holder DIDs are stored here since did:key generation
+// and storage is identical for either role in Phase 1.
+model DidKey {
+  id                  String   @id @default(uuid())
+  did                 String   @unique
+  verificationMethodId String  @unique
+  publicKeyMultibase  String
+  privateKeyMultibase String
+  createdAt           DateTime @default(now())
+
+  issuedCredentials  Credential[] @relation("IssuerDid")
+  heldCredentials    Credential[] @relation("HolderDid")
+}
+
+model Credential {
+  id            String   @id @default(uuid())
+  // W3C VC "id" field (urn:uuid:...), distinct from our internal id above
+  credentialId  String   @unique
+  issuerId      String
+  issuer        DidKey   @relation("IssuerDid", fields: [issuerId], references: [id])
+  holderId      String?
+  holder        DidKey?  @relation("HolderDid", fields: [holderId], references: [id])
+  type          String[]
+  payload       Json
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+
+  statusListId    String?
+  statusListIndex Int?
+  statusList      StatusList? @relation(fields: [statusListId], references: [id])
+}
+
+// One bitstring-encoded StatusList2021Credential per (issuer, purpose).
+// Bit N in the decoded bitstring corresponds to the credential whose
+// statusListIndex is N; flipping that single bit revokes only that
+// credential, not the list.
+model StatusList {
+  id          String   @id @default(uuid())
+  issuerDid   String
+  purpose     String   @default("revocation")
+  // gzip-compressed, base64url-encoded bitstring (StatusList2021 wire format)
+  encodedList String
+  nextIndex   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  credentials Credential[]
+
+  @@unique([issuerDid, purpose])
+}

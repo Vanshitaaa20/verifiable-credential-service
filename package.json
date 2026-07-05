@@ -1,0 +1,40 @@
+{
+  "name": "vc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "demo": "tsx scripts/demo.ts",
+    "test": "vitest run",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@digitalbazaar/credentials-context": "^3.2.0",
+    "@digitalbazaar/did-method-key": "^5.3.0",
+    "@digitalbazaar/ed25519-signature-2020": "^5.4.0",
+    "@digitalbazaar/ed25519-verification-key-2020": "^4.2.0",
+    "@digitalbazaar/vc": "^7.3.0",
+    "@digitalbazaar/vc-status-list": "^8.0.1",
+    "@digitalbazaar/vc-status-list-context": "^3.1.1",
+    "@prisma/client": "^6.19.3",
+    "ed25519-signature-2020-context": "^1.1.0",
+    "express": "^5.2.1",
+    "jsonld-signatures": "^11.6.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.0",
+    "prisma": "^6.19.3",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.6"
+  }
+}
